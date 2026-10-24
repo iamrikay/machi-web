@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Machi — L'École Connectée · Administration · Professeurs · Parents</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #eef2f8;
+    --surface: #ffffff;
+    --surface2: #f3f6fb;
+    --border: rgba(0,0,0,0.07);
+    --border-strong: rgba(0,0,0,0.12);
+    --primary: #14233f;
+    --accent: #1d4ed8;
+    --accent-deep: #1538a8;
+    --teacher: #0e7490;
+    --parent: #b45309;
+    --muted: #5f6675;
+    --dim: #9aa1b0;
+    --text: #101626;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, #1d4ed8 0%, #1d4ed8 40%, #0e7490 40%, #0e7490 70%, #b45309 70%, #b45309 100%);
+    z-index: 200;
+  }
+
+  /* ── BACKGROUND ── */
+  #bgCanvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  .bg-orb { position: fixed; border-radius: 50%; pointer-events: none; z-index: 0; }
+  .bg-orb-1 {
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(29,78,216,.12) 0%, rgba(29,78,216,.04) 45%, transparent 70%);
+    filter: blur(60px); top: -200px; right: -150px;
+    animation: orbFloat1 11s ease-in-out infinite;
+  }
+  .bg-orb-2 {
+    width: 560px; height: 560px;
+    background: radial-gradient(circle, rgba(14,116,144,.11) 0%, rgba(14,116,144,.04) 45%, transparent 70%);
+    filter: blur(70px); bottom: -140px; left: -120px;
+    animation: orbFloat2 14s ease-in-out infinite;
+  }
+  .bg-orb-3 {
+    width: 360px; height: 360px;
+    background: radial-gradient(circle, rgba(180,83,9,.10) 0%, transparent 70%);
+    filter: blur(50px); top: 35%; left: 48%;
+    animation: orbFloat3 16s ease-in-out infinite;
+  }
+  @keyframes orbFloat1 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-50px,38px) scale(1.07)} }
+  @keyframes orbFloat2 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(38px,-44px) scale(1.09)} }
+  @keyframes orbFloat3 { 0%,100%{transform:translate(0,0)} 33%{transform:translate(-30px,24px)} 66%{transform:translate(24px,-20px)} }
+
+  /* ── NAV ── */
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 48px; height: 60px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(238,242,248,0.96);
+    backdrop-filter: blur(20px);
+    position: fixed; top: 3px; left: 0; right: 0; z-index: 50;
+  }
+  .page { position: relative; z-index: 1; padding-top: 63px; }
+  .logo {
+    display: flex; align-items: center; gap: 11px;
+    font-family: 'Playfair Display', serif;
+    font-weight: 900; font-size: 26px; letter-spacing: -0.5px;
+    line-height: 1; color: var(--primary);
+  }
+  .logo-mark {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-deep));
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 3px 10px rgba(29,78,216,0.32);
+    flex-shrink: 0;
+  }
+  .logo-mark svg { width: 19px; height: 19px; }
+  .brand-sub {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 8.5px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--muted); opacity: 0.6; margin-top: 3px;
+  }
+  .nav-right { display: flex; align-items: center; gap: 16px; }
+  .nav-link {
+    font-size: 13px; font-weight: 500; color: var(--muted);
+    text-decoration: none; transition: color 0.15s;
+  }
+  .nav-link:hover { color: var(--primary); }
+  .nav-cta {
+    background: linear-gradient(110deg, #1d4ed8, #6366f1, #0ea5e9, #1d4ed8);
+    background-size: 300% 100%;
+    color: #fff;
+    font-size: 12.5px; font-weight: 600;
+    padding: 9px 18px; border-radius: 9px; border: none;
+    cursor: pointer; font-family: inherit;
+    box-shadow: 0 3px 12px rgba(29,78,216,0.35);
+    transition: transform 0.15s, box-shadow 0.15s;
+    white-space: nowrap; flex-shrink: 0;
+    animation: shimmerBtn 2.8s ease infinite;
+  }
+  .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99,102,241,0.50); }
+
+  /* ── HERO ── */
+  .hero {
+    display: grid; grid-template-columns: minmax(0,0.85fr) minmax(0,1.15fr);
+    gap: 28px; align-items: center;
+    padding: 46px 48px 30px;
+  }
+  .hero-left {
+    display: flex; flex-direction: column; gap: 20px;
+    animation: riseUp 0.7s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  @keyframes riseUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--surface); border: 1.5px solid var(--border-strong);
+    border-radius: 100px; padding: 6px 14px; width: fit-content;
+    font-size: 11.5px; font-weight: 600; color: var(--accent);
+    letter-spacing: 0.02em;
+  }
+  .eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(34px, 3.4vw, 52px);
+    font-weight: 900; line-height: 1.05; letter-spacing: -1.5px;
+    color: var(--primary);
+  }
+  h1 .accent { color: var(--accent); font-style: italic; }
+  .lede { font-size: 16px; color: var(--muted); max-width: 480px; }
+  .lede strong { color: var(--text); font-weight: 600; }
+
+  .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn-primary {
+    background: linear-gradient(110deg, #1d4ed8, #6366f1, #0ea5e9, #1d4ed8);
+    background-size: 300% 100%;
+    color: #fff;
+    font-family: inherit; font-weight: 600; font-size: 14px;
+    padding: 13px 26px; border: none; border-radius: 11px; cursor: pointer;
+    display: flex; align-items: center; gap: 9px;
+    box-shadow: 0 5px 18px rgba(29,78,216,0.40);
+    transition: background-position 0.4s ease, transform 0.15s, box-shadow 0.15s;
+    animation: shimmerBtn 2.8s ease infinite;
+  }
+  @keyframes shimmerBtn {
+    0%   { background-position: 100% 0; }
+    50%  { background-position: 0% 0; }
+    100% { background-position: 100% 0; }
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 10px 28px rgba(99,102,241,0.50); }
+  .btn-primary svg { width: 15px; height: 15px; }
+  .btn-ghost {
+    background: var(--surface); color: var(--primary);
+    font-family: inherit; font-weight: 600; font-size: 14px;
+    padding: 13px 22px; border: 1.5px solid var(--border-strong); border-radius: 11px;
+    cursor: pointer; transition: border-color 0.15s, background 0.15s;
+  }
+  .btn-ghost:hover { border-color: var(--accent); background: var(--surface2); }
+
+  .trust-pills { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+  .trust-pill {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 12px; color: var(--muted); font-weight: 500;
+  }
+  .trust-pill svg { width: 15px; height: 15px; stroke: var(--accent); fill: none; stroke-width: 2; }
+
+  /* ── HERO RIGHT : SCENE ── */
+  .scene {
+    position: relative;
+    display: flex; align-items: center; justify-content: flex-start;
+    min-height: 580px;
+    animation: riseUp 0.7s 0.15s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  .scene::before {
+    content: '';
+    position: absolute; inset: 6% 2%;
+    background: radial-gradient(ellipse at 40% 45%, rgba(29,78,216,0.07) 0%, transparent 65%);
+    pointer-events: none;
+  }
+
+  /* Desktop mockup (décalé à gauche pour laisser la place aux 2 téléphones) */
+  .desktop {
+    width: 100%; max-width: 470px;
+    background: var(--surface);
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 14px; overflow: hidden;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.9) inset,
+      0 8px 24px rgba(20,35,63,0.10),
+      0 28px 64px rgba(20,35,63,0.14);
+    position: relative; z-index: 2;
+  }
+  .mock-chrome {
+    background: #e7ebf2; padding: 9px 14px;
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+  }
+  .mock-dots { display: flex; gap: 5px; }
+  .mock-dots span { width: 10px; height: 10px; border-radius: 50%; }
+  .mock-dots span:nth-child(1){ background:#ff5f57; }
+  .mock-dots span:nth-child(2){ background:#febc2e; }
+  .mock-dots span:nth-child(3){ background:#28c840; }
+  .mock-url {
+    flex: 1; background: rgba(255,255,255,0.75);
+    border: 1px solid rgba(0,0,0,0.1); border-radius: 6px;
+    padding: 4px 10px; font-size: 10.5px; color: var(--muted);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .url-lock { color: #28c840; }
+
+  .d-banner {
+    background: linear-gradient(120deg, var(--primary) 0%, #1c3258 100%);
+    color: #fff; padding: 12px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .d-banner-title {
+    font-size: 13px; font-weight: 700; letter-spacing: -0.2px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .d-banner-title svg { width: 15px; height: 15px; }
+  .d-banner-tag {
+    font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.12em;
+    background: rgba(255,255,255,0.14); padding: 3px 9px; border-radius: 100px;
+    font-weight: 600; color: rgba(255,255,255,0.85);
+  }
+
+  .d-body { display: grid; grid-template-columns: 92px 1fr; }
+  .d-side { background: #f1f4fa; border-right: 1px solid var(--border); padding: 10px 0; }
+  .d-side-item {
+    display: flex; align-items: center; gap: 7px;
+    padding: 7px 11px; font-size: 9.5px; color: var(--muted); font-weight: 500;
+  }
+  .d-side-item svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+  .d-side-item.active { color: var(--accent); font-weight: 700; border-left: 2px solid var(--accent); background: #fff; }
+
+  .d-main { padding: 13px 15px; }
+  .d-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 9px; margin-bottom: 12px; }
+  .d-stat {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 9px; padding: 9px 10px;
+  }
+  .d-stat-num { font-size: 17px; font-weight: 800; color: var(--primary); line-height: 1; }
+  .d-stat-lbl { font-size: 8.5px; color: var(--dim); margin-top: 4px; font-weight: 500; }
+  .d-stat-num.blue { color: var(--accent); }
+  .d-stat-num.teal { color: var(--teacher); }
+  .d-stat-num.amber { color: var(--parent); }
+
+  .d-rows-title {
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--dim); font-weight: 700; margin: 4px 0 7px;
+  }
+  .d-row {
+    display: flex; align-items: center; gap: 9px;
+    padding: 7px 9px; border-radius: 8px; border: 1px solid var(--border);
+    margin-bottom: 6px; background: #fff;
+  }
+  .d-row-av {
+    width: 24px; height: 24px; border-radius: 7px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 700; color: #fff;
+  }
+  .d-row-body { flex: 1; min-width: 0; }
+  .d-row-name { font-size: 10px; font-weight: 600; color: var(--primary); }
+  .d-row-sub { font-size: 8.5px; color: var(--dim); }
+  .d-row-tag {
+    font-size: 8px; font-weight: 700; padding: 2px 7px; border-radius: 100px;
+  }
+  .tag-sent { background: rgba(29,78,216,0.10); color: var(--accent); }
+  .tag-read { background: rgba(14,116,144,0.10); color: var(--teacher); }
+  .tag-wait { background: rgba(180,83,9,0.10); color: var(--parent); }
+
+  /* Carte analyse IA */
+  .d-ai {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 9px 10px; border-radius: 9px; margin-bottom: 12px;
+    background: linear-gradient(120deg, rgba(29,78,216,0.07), rgba(14,116,144,0.06));
+    border: 1px solid rgba(29,78,216,0.18);
+  }
+  .d-ai-ic {
+    width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--accent), var(--teacher));
+    display: flex; align-items: center; justify-content: center;
+  }
+  .d-ai-ic svg { width: 12px; height: 12px; stroke: #fff; fill: none; stroke-width: 2; }
+  .d-ai-body { flex: 1; min-width: 0; }
+  .d-ai-tag {
+    font-size: 7.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 2px;
+  }
+  .d-ai-txt { font-size: 9px; color: var(--text); line-height: 1.35; }
+  .d-ai-txt b { color: var(--primary); font-weight: 700; }
+
+  /* Graphe Mon IA */
+  .d-chart {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 9px; padding: 10px 11px 8px; margin-bottom: 12px;
+  }
+  .d-chart-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 7px; }
+  .d-chart-title { font-size: 9.5px; font-weight: 700; color: var(--primary); }
+  .d-chart-delta {
+    font-size: 7.5px; font-weight: 800; color: var(--teacher);
+    background: rgba(14,116,144,0.10); padding: 2px 7px; border-radius: 100px;
+  }
+  .d-chart svg { width: 100%; height: auto; display: block; }
+  .d-chart-x { display: flex; justify-content: space-between; margin-top: 4px; }
+  .d-chart-x span { font-size: 7px; color: var(--dim); font-weight: 500; }
+
+  /* Deux colonnes : graphe à gauche, communications à droite */
+  .d-split { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 11px; align-items: start; }
+  .d-split .d-chart { margin-bottom: 0; height: 100%; }
+  .d-split .d-rows-title { margin-top: 0; }
+
+  /* Phones */
+  .phones { display: contents; }
+  .phone {
+    position: absolute; width: 168px;
+    background: #0c1322; border-radius: 26px; padding: 7px;
+    box-shadow: 0 16px 40px rgba(20,35,63,0.28);
+    z-index: 3;
+  }
+  .phone-left  { right: 122px; bottom: 20px; transform: rotate(-3deg); width: 164px; z-index: 3; }
+  .phone-right { right: -14px; top: 16px;     transform: rotate(3deg);  width: 164px; z-index: 4; }
+  .phone-screen {
+    background: var(--surface); border-radius: 22px; overflow: hidden;
+    position: relative; aspect-ratio: 9 / 19.5;
+  }
+  .phone-screen::after {           /* barre d'accueil iOS */
+    content: ''; position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%);
+    width: 34%; max-width: 48px; height: 4px; border-radius: 100px;
+    background: rgba(16,22,38,0.20); z-index: 4;
+  }
+  .phone-notch {
+    position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
+    width: 34%; max-width: 50px; height: 5px; background: #0c1322; border-radius: 100px; z-index: 4;
+  }
+  .ph-header {
+    padding: 18px 13px 12px; color: #fff;
+  }
+  .ph-header.teacher { background: linear-gradient(135deg, var(--teacher), #155e75); }
+  .ph-header.parent  { background: linear-gradient(135deg, var(--parent), #92400e); }
+  .ph-role {
+    font-size: 8px; text-transform: uppercase; letter-spacing: 0.12em;
+    font-weight: 600; opacity: 0.85; margin-bottom: 3px;
+  }
+  .ph-hello { font-size: 14px; font-weight: 800; letter-spacing: -0.3px; }
+  .ph-hello span { font-weight: 500; opacity: 0.85; }
+  .ph-body { padding: 11px 11px 14px; display: flex; flex-direction: column; gap: 8px; }
+  .ph-card {
+    display: flex; align-items: center; gap: 9px;
+    padding: 9px 10px; border-radius: 11px;
+    border: 1px solid var(--border); background: #fff;
+  }
+  .ph-card-ic {
+    width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ph-card-ic svg { width: 14px; height: 14px; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .ph-card-body { flex: 1; min-width: 0; }
+  .ph-card-title { font-size: 10px; font-weight: 700; color: var(--primary); line-height: 1.2; }
+  .ph-card-sub { font-size: 8px; color: var(--dim); margin-top: 1px; }
+  .ph-card-arr { color: var(--dim); }
+  .ph-card-arr svg { width: 11px; height: 11px; }
+
+  .ic-teal { background: rgba(14,116,144,0.10); }
+  .ic-teal svg { stroke: var(--teacher); }
+  .ic-amber { background: rgba(180,83,9,0.10); }
+  .ic-amber svg { stroke: var(--parent); }
+  .ic-blue { background: rgba(29,78,216,0.10); }
+  .ic-blue svg { stroke: var(--accent); }
+
+  .ph-cta {
+    margin-top: 2px; text-align: center;
+    font-size: 9.5px; font-weight: 700; color: #fff;
+    padding: 9px; border-radius: 10px;
+  }
+  .ph-cta.teacher { background: var(--teacher); }
+  .ph-cta.parent  { background: var(--parent); }
+
+  .scene-label {
+    position: absolute; font-size: 9px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    padding: 4px 10px; border-radius: 100px; z-index: 5;
+    background: #fff; box-shadow: 0 4px 12px rgba(20,35,63,0.14);
+  }
+  .label-teacher { color: var(--teacher); right: 124px; bottom: -12px; top: auto; z-index: 6; }
+  .label-parent  { color: var(--parent); right: -6px; top: -18px; z-index: 6; }
+
+  /* ── CHIFFRES CLÉS ── */
+  .stats-section {
+    padding: 0 48px 48px;
+    max-width: 1280px; margin: 0 auto;
+  }
+  .stats-inner {
+    background: var(--primary);
+    border-radius: 18px; padding: 36px 48px;
+  }
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(4,1fr);
+  }
+  .stat-item {
+    padding: 0 28px; text-align: center; position: relative;
+    opacity: 0; transform: translateY(14px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .stat-item.visible { opacity: 1; transform: translateY(0); }
+  .stat-item:not(:last-child)::after {
+    content: '';
+    position: absolute; right: 0; top: 10%; bottom: 10%;
+    width: 1px; background: rgba(255,255,255,0.10);
+  }
+  .stat-value {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 3.2vw, 48px); font-weight: 900;
+    line-height: 1; letter-spacing: -1.5px; color: #fff;
+    display: flex; align-items: baseline; justify-content: center; gap: 2px;
+  }
+  .stat-value .suffix {
+    font-size: 0.48em; font-weight: 700; color: rgba(255,255,255,0.6);
+    letter-spacing: 0; margin-left: 1px;
+  }
+  .stat-value .prefix {
+    font-size: 0.52em; font-weight: 700; color: rgba(255,255,255,0.6);
+    letter-spacing: 0; margin-right: 1px; align-self: flex-start; margin-top: 8px;
+  }
+  .stat-label {
+    font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.5);
+    margin-top: 8px; line-height: 1.4;
+  }
+  @media (max-width: 960px) {
+    .stats-section { padding: 0 20px 36px; }
+    .stats-inner { padding: 28px 20px; }
+    .stats-grid { grid-template-columns: repeat(2,1fr); gap: 0; row-gap: 28px; }
+    .stat-item:nth-child(2)::after,
+    .stat-item:nth-child(4)::after { display: none; }
+    .stat-item:nth-child(1),
+    .stat-item:nth-child(2) { padding-bottom: 28px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  }
+  @media (max-width: 560px) {
+    .stat-value { font-size: 30px; }
+    .stat-label { font-size: 11px; }
+  }
+
+  /* ── ROLES STRIP ── */
+  .roles {
+    display: grid; grid-template-columns: repeat(3,1fr); gap: 16px;
+    padding: 26px 48px 40px; max-width: 1280px; margin: 0 auto;
+  }
+  .role-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 22px 22px 24px;
+    box-shadow: 0 2px 10px rgba(20,35,63,0.04);
+    transition: transform 0.18s, box-shadow 0.18s;
+  }
+  .role-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(20,35,63,0.10); }
+  .role-ic {
+    width: 42px; height: 42px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; margin-bottom: 14px;
+  }
+  .role-ic svg { width: 21px; height: 21px; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .role-ic.admin { background: rgba(29,78,216,0.10); }
+  .role-ic.admin svg { stroke: var(--accent); }
+  .role-ic.teacher { background: rgba(14,116,144,0.10); }
+  .role-ic.teacher svg { stroke: var(--teacher); }
+  .role-ic.parent { background: rgba(180,83,9,0.10); }
+  .role-ic.parent svg { stroke: var(--parent); }
+  .role-tag {
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em;
+    font-weight: 700; margin-bottom: 6px;
+  }
+  .role-tag.admin { color: var(--accent); }
+  .role-tag.teacher { color: var(--teacher); }
+  .role-tag.parent { color: var(--parent); }
+  .role-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+  .role-desc { font-size: 13.5px; color: var(--muted); line-height: 1.55; }
+  .role-list { list-style: none; margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .role-list li { font-size: 12.5px; color: var(--text); display: flex; align-items: center; gap: 8px; }
+  .role-list li::before {
+    content: ''; width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0;
+    background: var(--dim);
+  }
+
+  /* ── TÉMOIGNAGE ── */
+  .testimonial-section {
+    padding: 0 48px 48px;
+    max-width: 1280px; margin: 0 auto;
+  }
+  .testimonial-wrap {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  }
+  .testimonial-card {
+    display: flex; align-items: flex-start; gap: 20px;
+    padding: 28px 30px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+  .testimonial-avatar {
+    flex-shrink: 0; position: relative;
+  }
+  .testimonial-avatar img {
+    width: 56px; height: 56px; border-radius: 50%;
+    object-fit: cover; display: block;
+    border: 3px solid var(--bg);
+    box-shadow: 0 0 0 1px var(--border);
+  }
+  .testimonial-avatar::after {
+    content: '"';
+    position: absolute; bottom: -4px; right: -4px;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    font-size: 12px; font-weight: 900; line-height: 18px;
+    text-align: center; font-family: 'Playfair Display', serif;
+    border: 2px solid var(--surface);
+  }
+  .testimonial-body { flex: 1; min-width: 0; }
+  .testimonial-quote {
+    font-size: 14px; color: var(--text); line-height: 1.65;
+    font-style: italic; letter-spacing: -0.1px;
+    margin-bottom: 14px;
+  }
+  .testimonial-quote strong { font-style: normal; color: var(--primary); font-weight: 700; }
+  .testimonial-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .testimonial-name { font-size: 12.5px; font-weight: 700; color: var(--primary); }
+  .testimonial-role { font-size: 11.5px; color: var(--muted); }
+  .testimonial-sep { width: 3px; height: 3px; border-radius: 50%; background: var(--dim); flex-shrink: 0; }
+  .testimonial-stars {
+    display: flex; gap: 2px; margin-top: 10px;
+  }
+  .testimonial-stars svg { width: 12px; height: 12px; fill: #f59e0b; }
+  @media (max-width: 960px) {
+    .testimonial-section { padding: 0 20px 36px; }
+    .testimonial-wrap { grid-template-columns: 1fr; }
+    .testimonial-card { padding: 22px 20px; }
+  }
+
+  /* ── CTA BAND ── */
+  .cta-band {
+    margin: 0 48px 40px; max-width: 1184px; margin-left: auto; margin-right: auto;
+    background: linear-gradient(125deg, var(--primary) 0%, #1c3258 60%, #1d4ed8 130%);
+    border-radius: 20px; padding: 36px 40px;
+    display: flex; align-items: center; justify-content: space-between; gap: 24px;
+    flex-wrap: wrap;
+    box-shadow: 0 18px 44px rgba(20,35,63,0.22);
+  }
+  .cta-band-text h2 {
+    font-family: 'Playfair Display', serif; color: #fff;
+    font-size: 26px; font-weight: 800; line-height: 1.15; letter-spacing: -0.5px;
+  }
+  .cta-band-text p { color: rgba(255,255,255,0.72); font-size: 14px; margin-top: 6px; max-width: 460px; }
+  .cta-band .btn-primary { background: linear-gradient(110deg, #fff, #bfdbfe, #fff, #bfdbfe, #fff); background-size: 400% 100%; color: var(--accent); box-shadow: 0 6px 20px rgba(0,0,0,0.18); animation: shimmerBtnWhite 2.8s ease infinite; }
+  @keyframes shimmerBtnWhite {
+    0%   { background-position: 100% 0; }
+    50%  { background-position: 0% 0; }
+    100% { background-position: 100% 0; }
+  }
+  .cta-band .btn-primary svg { stroke: var(--accent); }
+  .cta-band .btn-primary:hover { box-shadow: 0 10px 24px rgba(0,0,0,0.22); }
+
+  footer {
+    padding: 22px 48px; border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 12px; color: var(--dim); flex-wrap: wrap; gap: 10px;
+  }
+  footer a { color: var(--muted); text-decoration: none; }
+  footer a:hover { color: var(--accent); }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 500;
+    background: rgba(16,22,38,0.55); backdrop-filter: blur(6px);
+    display: none; align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-overlay.open { display: flex !important; align-items: center !important; justify-content: center !important; animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal {
+    background: var(--surface); border-radius: 18px;
+    width: 100% !important; max-width: 440px !important;
+    margin: 0 auto !important; box-sizing: border-box !important;
+    padding: 28px 28px 26px; position: relative;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.30);
+    animation: popUp 0.25s cubic-bezier(0.22,1,0.36,1);
+  }
+  @keyframes popUp { from { opacity: 0; transform: translateY(16px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+  .modal-close {
+    position: absolute; top: 16px; right: 16px; width: 30px; height: 30px;
+    border: none; background: var(--surface2); border-radius: 8px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; color: var(--muted);
+    font-size: 17px; line-height: 1;
+  }
+  .modal-close:hover { background: #e7ebf2; color: var(--primary); }
+  .modal-eyebrow {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em;
+    font-weight: 700; color: var(--accent); margin-bottom: 6px;
+  }
+  .modal h3 { font-family: 'Playfair Display', serif; font-size: 23px; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
+  .modal-sub { font-size: 13px; color: var(--muted); margin-top: 6px; margin-bottom: 18px; }
+  .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 13px; }
+  .field label { font-size: 11.5px; font-weight: 600; color: var(--text); }
+  .field input {
+    background: var(--surface2); border: 1.5px solid var(--border-strong);
+    border-radius: 10px; padding: 11px 14px; font-size: 13.5px; color: var(--text);
+    font-family: inherit; outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(29,78,216,0.10); background: #fff; }
+  .field input::placeholder { color: var(--dim); }
+  .modal-submit {
+    width: 100%;
+    background: linear-gradient(110deg, #1d4ed8, #6366f1, #0ea5e9, #1d4ed8);
+    background-size: 300% 100%;
+    color: #fff;
+    font-family: inherit; font-weight: 700; font-size: 14px;
+    padding: 13px; border: none; border-radius: 11px; cursor: pointer; margin-top: 4px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: 0 5px 16px rgba(29,78,216,0.35);
+    transition: transform 0.15s, box-shadow 0.15s;
+    animation: shimmerBtn 2.8s ease infinite;
+  }
+  .modal-submit:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(99,102,241,0.50); }
+  .modal-submit svg { width: 15px; height: 15px; flex-shrink: 0; }
+  .modal-note { font-size: 11px; color: var(--dim); text-align: center; margin-top: 12px; }
+  .modal-success { text-align: center; padding: 14px 0 6px; }
+  .modal-success .check {
+    width: 54px; height: 54px; border-radius: 50%; background: rgba(29,78,216,0.10);
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 14px;
+  }
+  .modal-success .check svg { width: 28px; height: 28px; stroke: var(--accent); fill: none; stroke-width: 2.5; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 960px) {
+    nav { padding: 0 20px; }
+    .hero { grid-template-columns: 1fr; padding: 32px 20px 20px; gap: 50px; }
+    .scene { min-height: 440px; margin-top: 20px; justify-content: center; }
+    .roles { grid-template-columns: 1fr; padding: 20px 20px 30px; }
+    .cta-band { margin: 0 20px 30px; padding: 28px 24px; }
+    .cta-band-text h2 { font-size: 22px; }
+    footer { padding: 20px; }
+  }
+  @media (max-width: 560px) {
+    .nav-link { display: none; }
+    .desktop { max-width: 100%; }
+    .phone-left  { right: 150px; width: 168px; bottom: 30px; }
+    .phone-right { right: -22px; width: 168px; top: 16px; }
+    .label-teacher { right: 162px; }
+    /* titres sur une ligne -> téléphones moins hauts */
+    .ph-card { padding: 8px 9px; gap: 7px; }
+    .ph-card-ic { width: 26px; height: 26px; }
+    .ph-card-ic svg { width: 13px; height: 13px; }
+    .ph-card-title { font-size: 9.5px; white-space: nowrap; }
+    .ph-card-sub { font-size: 7.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ph-body { padding: 9px 9px 11px; gap: 6px; }
+    .ph-header { padding: 14px 11px 10px; }
+    .ph-hello { font-size: 13px; white-space: nowrap; }
+    .ph-cta { font-size: 9px; padding: 8px; }
+    h1 { font-size: 32px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bg-orb { animation: none; }
+  }
+
+  /* ───── HEADER — ajustement mobile du titre ───── */
+  @media (max-width: 600px) {
+    nav {
+      height: auto;
+      min-height: 60px;
+      padding: 9px 16px;
+      gap: 12px;
+    }
+    .logo { font-size: 19px; gap: 9px; }
+    .logo-mark { width: 30px; height: 30px; }
+    .logo-mark svg { width: 16px; height: 16px; }
+    .logo > div > span { font-size: 12.5px; }
+    .brand-sub { font-size: 7.5px; margin-top: 2px; }
+    .nav-cta { padding: 8px 13px; font-size: 11.5px; }
+
+    /* ── Scène mobile : les téléphones restent dans la scène, comme sur desktop ── */
+    .scene {
+      min-height: 420px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      margin-top: 4px;
+    }
+    .scene::before { display: none; }
+    .scene-label { display: none; }
+
+    /* Desktop : réduit pour laisser la place aux téléphones à droite */
+    .desktop {
+      max-width: calc(100% - 100px);
+      position: relative;
+      z-index: 2;
+    }
+    .d-body { grid-template-columns: 70px 1fr; }
+    .d-side-item { font-size: 8.5px; padding: 6px 8px; }
+    .d-split { grid-template-columns: 1fr; gap: 8px; }
+    .d-stats { gap: 6px; }
+    .d-stat { padding: 7px 8px; }
+    .d-stat-num { font-size: 14px; }
+    .d-stat-lbl { font-size: 7.5px; }
+    .d-main { padding: 10px 11px; }
+    .d-ai { padding: 7px 8px; }
+    .d-ai-txt { font-size: 8.5px; }
+
+    /* Conteneur téléphones : redevient neutre (display:contents) → les phones gardent leur position:absolute */
+    .phones { display: contents; }
+
+    /* Téléphones : positionnement absolu dans la scène, identique au desktop mais adapté */
+    .phone-left {
+      position: absolute;
+      width: 132px;
+      right: 136px;
+      bottom: -10px;
+      transform: rotate(-3deg);
+      z-index: 3;
+      border-radius: 24px;
+      padding: 6px;
+      box-shadow: 0 12px 30px rgba(20,35,63,0.28);
+    }
+    .phone-right {
+      position: absolute;
+      width: 132px;
+      right: -10px;
+      top: 10px;
+      transform: rotate(3deg);
+      z-index: 4;
+      border-radius: 24px;
+      padding: 6px;
+      box-shadow: 0 12px 30px rgba(20,35,63,0.28);
+    }
+    .phone-screen {
+      aspect-ratio: 9 / 19.5;
+      border-radius: 18px;
+      position: relative;
+    }
+    .phone-notch {
+      width: 36%; max-width: 44px; height: 4px; top: 5px;
+    }
+    .phone-screen::after {
+      content: ''; position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%);
+      width: 34%; max-width: 40px; height: 3px; border-radius: 100px;
+      background: rgba(16,22,38,0.20);
+    }
+    /* Contenu des téléphones : réduit proportionnellement */
+    .ph-header { padding: 12px 9px 8px; }
+    .ph-role { font-size: 6.5px; }
+    .ph-hello { font-size: 10px; }
+    .ph-body { padding: 7px 7px 9px; gap: 5px; }
+    .ph-card { padding: 6px 7px; gap: 6px; border-radius: 8px; }
+    .ph-card-ic { width: 20px; height: 20px; border-radius: 6px; }
+    .ph-card-ic svg { width: 10px; height: 10px; }
+    .ph-card-title { font-size: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ph-card-sub { font-size: 6.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ph-card-arr svg { width: 9px; height: 9px; }
+    .ph-cta { font-size: 7.5px; padding: 6px 5px; border-radius: 7px; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+<div class="bg-orb bg-orb-3"></div>
+
+<div class="page">
+
+  <nav>
+    <div class="logo">
+      <span class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M3 8l9-4 9 4-9 4-9-4z" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><path d="M7 10.5V15c0 1.1 2.2 2 5 2s5-.9 5-2v-4.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 8.5v4" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+      </span>
+      <div>
+        Machi <span style="font-weight:400;color:var(--muted);">— L'École Connectée</span>
+        <div class="brand-sub">Admin · Profs · Parents</div>
+      </div>
+    </div>
+    <div class="nav-right">
+      <a class="nav-link" href="#roles">La plateforme</a>
+      <button class="nav-cta" onclick="openModal()">Demander une démo</button>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-left">
+      <span class="eyebrow"><span class="dot"></span> Transparence · Confiance · Intelligence artificielle</span>
+      <h1>La transparence qui <span class="accent">fidélise les familles</span>, l'IA qui fait progresser l'école.</h1>
+      <p class="lede">Trois espaces — <strong>administration</strong>, <strong>professeurs</strong>, <strong>parents</strong> — où tout est visible. La confiance s'installe. L'<strong>IA</strong> fait le reste.</p>
+      <div class="hero-ctas">
+        <button class="btn-primary" onclick="openModal()">
+          Demander une démo
+          <svg viewBox="0 0 14 14" fill="none"><path d="M3 7h8M11 7L7.5 3.5M11 7l-3.5 3.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="btn-ghost" onclick="document.getElementById('roles').scrollIntoView({behavior:'smooth'})">Voir les espaces</button>
+      </div>
+      <div class="trust-pills">
+        <span class="trust-pill"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg> Transparence en temps réel</span>
+        <span class="trust-pill"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg> La confiance qui fidélise</span>
+        <span class="trust-pill"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg> Amélioration continue par l'IA</span>
+      </div>
+    </div>
+
+    <!-- SCÈNE : écran admin + 2 téléphones -->
+    <div class="scene">
+      <span class="scene-label label-teacher">Espace Professeur</span>
+      <span class="scene-label label-parent">Espace Parent</span>
+
+      <!-- Desktop admin -->
+      <div class="desktop">
+        <div class="mock-chrome">
+          <div class="mock-dots"><span></span><span></span><span></span></div>
+          <div class="mock-url"><span class="url-lock">🔒</span> ecole-amal.machi.ma / administration</div>
+        </div>
+        <div class="d-banner">
+          <div class="d-banner-title">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="14" rx="2" stroke="#fff" stroke-width="1.8"/><path d="M3 9h18" stroke="#fff" stroke-width="1.8"/></svg>
+            Espace Administration Scolaire
+          </div>
+          <span class="d-banner-tag">Tableau de bord</span>
+        </div>
+        <div class="d-body">
+          <div class="d-side">
+            <div class="d-side-item active"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg> Accueil</div>
+            <div class="d-side-item"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> Élèves</div>
+            <div class="d-side-item"><svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/></svg> Classes</div>
+            <div class="d-side-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Agenda</div>
+            <div class="d-side-item"><svg viewBox="0 0 24 24"><path d="M12 3l1.5 4.2L18 9l-4.5 1.8L12 15l-1.5-4.2L6 9z"/><path d="M18 14l.8 2L21 16.6l-2.2.9L18 19l-.6-1.5L15 16.6 17.4 16z"/></svg> Mon IA</div>
+            <div class="d-side-item"><svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.2L4 17.2z"/></svg> Messages</div>
+          </div>
+          <div class="d-main">
+            <div class="d-stats">
+              <div class="d-stat"><div class="d-stat-num blue">642</div><div class="d-stat-lbl">Élèves actifs</div></div>
+              <div class="d-stat"><div class="d-stat-num teal">38</div><div class="d-stat-lbl">Professeurs</div></div>
+              <div class="d-stat"><div class="d-stat-num amber">94%</div><div class="d-stat-lbl">Parents connectés</div></div>
+            </div>
+            <div class="d-rows-title">Mon IA</div>
+            <div class="d-ai">
+              <span class="d-ai-ic"><svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M6 6l2 2M16 16l2 2M18 6l-2 2M8 16l-2 2"/><circle cx="12" cy="12" r="3.2"/></svg></span>
+              <div class="d-ai-body">
+                <div class="d-ai-tag">Analyse IA</div>
+                <div class="d-ai-txt">Satisfaction parents en hausse <b>(+12%)</b>. Suggestion : généraliser le rapport hebdomadaire aux autres classes.</div>
+              </div>
+            </div>
+            <div class="d-split">
+              <div class="d-split-col">
+            <div class="d-chart">
+              <div class="d-chart-head">
+                <span class="d-chart-title">Satisfaction des familles</span>
+                <span class="d-chart-delta">▲ +12% · 6 mois</span>
+              </div>
+              <svg viewBox="0 0 280 70">
+                <defs>
+                  <linearGradient id="aiArea" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="rgba(29,78,216,0.22)"/>
+                    <stop offset="100%" stop-color="rgba(29,78,216,0)"/>
+                  </linearGradient>
+                </defs>
+                <line x1="8" y1="62" x2="272" y2="62" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+                <path d="M8,52 L61,46 L114,41 L166,33 L219,23 L272,14 L272,62 L8,62 Z" fill="url(#aiArea)"/>
+                <path d="M8,52 L61,46 L114,41 L166,33 L219,23 L272,14" fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="8" cy="52" r="2.4" fill="#1d4ed8"/>
+                <circle cx="61" cy="46" r="2.4" fill="#1d4ed8"/>
+                <circle cx="114" cy="41" r="2.4" fill="#1d4ed8"/>
+                <circle cx="166" cy="33" r="2.4" fill="#1d4ed8"/>
+                <circle cx="219" cy="23" r="2.4" fill="#1d4ed8"/>
+                <circle cx="272" cy="14" r="3" fill="#0e7490"/>
+              </svg>
+              <div class="d-chart-x"><span>Jan</span><span>Fév</span><span>Mar</span><span>Avr</span><span>Mai</span><span>Juin</span></div>
+            </div>
+              </div>
+              <div class="d-split-col">
+            <div class="d-rows-title">Communications du jour</div>
+            <div class="d-row">
+              <div class="d-row-av" style="background:var(--teacher)">SM</div>
+              <div class="d-row-body"><div class="d-row-name">Mme Sara M. — 5ème B</div><div class="d-row-sub">Rapport hebdomadaire envoyé</div></div>
+              <span class="d-row-tag tag-sent">Envoyé</span>
+            </div>
+            <div class="d-row">
+              <div class="d-row-av" style="background:var(--accent)">DA</div>
+              <div class="d-row-body"><div class="d-row-name">Direction — Tous niveaux</div><div class="d-row-sub">Note de sortie scolaire</div></div>
+              <span class="d-row-tag tag-read">Lu 88%</span>
+            </div>
+            <div class="d-row">
+              <div class="d-row-av" style="background:var(--parent)">YB</div>
+              <div class="d-row-body"><div class="d-row-name">M. Youssef B. — 3ème A</div><div class="d-row-sub">Bulletin trimestriel</div></div>
+              <span class="d-row-tag tag-wait">En attente</span>
+            </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conteneur téléphones (neutre sur desktop, rangée sur mobile) -->
+      <div class="phones">
+      <!-- Téléphone gauche : Professeur -->
+      <div class="phone phone-left">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="ph-header teacher">
+            <div class="ph-role">Espace Professeur</div>
+            <div class="ph-hello">Bonjour, <span>Mme Sara</span></div>
+          </div>
+          <div class="ph-body">
+            <div class="ph-card">
+              <span class="ph-card-ic ic-teal"><svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.2L4 17.2z"/></svg></span>
+              <div class="ph-card-body"><div class="ph-card-title">Envoyer un rapport</div><div class="ph-card-sub">aux parents · 5ème B</div></div>
+              <span class="ph-card-arr"><svg viewBox="0 0 14 14"><path d="M4 2l5 5-5 5" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg></span>
+            </div>
+            <div class="ph-card">
+              <span class="ph-card-ic ic-teal"><svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></span>
+              <div class="ph-card-body"><div class="ph-card-title">Saisir les notes</div><div class="ph-card-sub">contrôle de maths</div></div>
+              <span class="ph-card-arr"><svg viewBox="0 0 14 14"><path d="M4 2l5 5-5 5" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg></span>
+            </div>
+            <div class="ph-cta teacher">Nouveau message classe</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Téléphone droite : Parent -->
+      <div class="phone phone-right">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="ph-header parent">
+            <div class="ph-role">Espace Parent</div>
+            <div class="ph-hello">Bonjour, <span>Ahmed</span></div>
+          </div>
+          <div class="ph-body">
+            <div class="ph-card">
+              <span class="ph-card-ic ic-amber"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+              <div class="ph-card-body"><div class="ph-card-title">Suivre l'agenda</div><div class="ph-card-sub">calendrier de mon fils</div></div>
+              <span class="ph-card-arr"><svg viewBox="0 0 14 14"><path d="M4 2l5 5-5 5" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg></span>
+            </div>
+            <div class="ph-card">
+              <span class="ph-card-ic ic-amber"><svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1 4 3 6 3s6-2 6-3v-5"/></svg></span>
+              <div class="ph-card-body"><div class="ph-card-title">Consulter les notes</div><div class="ph-card-sub">bulletin trimestriel</div></div>
+              <span class="ph-card-arr"><svg viewBox="0 0 14 14"><path d="M4 2l5 5-5 5" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg></span>
+            </div>
+            <div class="ph-cta parent">Contacter le professeur</div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROLES -->
+  <section class="roles" id="roles">
+    <div class="role-card">
+      <div class="role-ic admin"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg></div>
+      <div class="role-tag admin">Espace Administration · Web</div>
+      <div class="role-title">Le pilotage éclairé par l'IA</div>
+      <p class="role-desc">L'administration garde une vue transparente sur l'établissement et reçoit des analyses IA qui transforment les retours des familles en améliorations concrètes des services.</p>
+      <ul class="role-list">
+        <li>Tableau de bord transparent et traçable</li>
+        <li>Analyse IA des retours parents</li>
+        <li>Pistes d'amélioration des services scolaires</li>
+      </ul>
+    </div>
+    <div class="role-card">
+      <div class="role-ic teacher"><svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></div>
+      <div class="role-tag teacher">App Professeur · Mobile web</div>
+      <div class="role-title">Communiquer en confiance</div>
+      <p class="role-desc">Chaque rapport, note et message est partagé clairement avec les bons parents et horodaté — une communication transparente qui renforce le lien avec les familles.</p>
+      <ul class="role-list">
+        <li>Rapports et bulletins traçables</li>
+        <li>Échanges directs et horodatés</li>
+        <li>Moins de friction, plus de confiance</li>
+      </ul>
+    </div>
+    <div class="role-card">
+      <div class="role-ic parent"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M16 11h6"/></svg></div>
+      <div class="role-tag parent">App Parent · Mobile web</div>
+      <div class="role-title">Tout voir, en confiance</div>
+      <p class="role-desc">Les parents suivent la scolarité en temps réel et dans leur langue. Cette transparence crée l'attachement qui fidélise durablement les familles à l'école.</p>
+      <ul class="role-list">
+        <li>Suivi complet et en temps réel</li>
+        <li>Historique transparent des échanges</li>
+        <li>Une relation de confiance durable</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- CHIFFRES CLÉS -->
+  <section class="stats-section">
+    <div class="stats-inner">
+      <div class="stats-grid">
+        <div class="stat-item" data-target="120" data-prefix="+">
+          <div class="stat-value"><span class="prefix">+</span><span class="stat-num">0</span></div>
+          <div class="stat-label">écoles partenaires</div>
+        </div>
+        <div class="stat-item" data-target="94" data-suffix="%">
+          <div class="stat-value"><span class="stat-num">0</span><span class="suffix">%</span></div>
+          <div class="stat-label">des parents connectés dès le 1er semestre</div>
+        </div>
+        <div class="stat-item" data-target="3" data-suffix="×">
+          <div class="stat-value"><span class="stat-num">0</span><span class="suffix">×</span></div>
+          <div class="stat-label">plus de messages lus vs le papier</div>
+        </div>
+        <div class="stat-item" data-target="4" data-suffix="min">
+          <div class="stat-value"><span class="stat-num">0</span><span class="suffix">min</span></div>
+          <div class="stat-label">pour déployer sur une nouvelle classe</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TÉMOIGNAGES -->
+  <section class="testimonial-section">
+    <div class="testimonial-wrap">
+      <div class="testimonial-card">
+        <div class="testimonial-avatar">
+          <img src="https://machi.ma/wp-content/uploads/2026/06/directrice.png" alt="Nadia B." />
+        </div>
+        <div class="testimonial-body">
+          <p class="testimonial-quote">J'ai essayé trois outils avant Machi. C'est le seul où <strong>parents, profs et direction parlent vraiment le même langage.</strong></p>
+          <div class="testimonial-stars">
+            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </div>
+          <div class="testimonial-meta">
+            <span class="testimonial-name">Nadia B.</span>
+            <span class="testimonial-sep"></span>
+            <span class="testimonial-role">Directrice · Groupe scolaire privé, Casablanca</span>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-avatar">
+          <img src="https://machi.ma/wp-content/uploads/2026/06/directeur.png" alt="Karim C." />
+        </div>
+        <div class="testimonial-body">
+          <p class="testimonial-quote">Avant, les parents appelaient pour tout. Aujourd'hui, <strong>ils font confiance.</strong> Cette sérénité-là, c'est Machi qui nous l'a donnée.</p>
+          <div class="testimonial-stars">
+            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </div>
+          <div class="testimonial-meta">
+            <span class="testimonial-name">Nabil C.</span>
+            <span class="testimonial-sep"></span>
+            <span class="testimonial-role">Directeur · Groupe scolaire privé, Rabat</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA BAND -->
+  <section class="cta-band">
+    <div class="cta-band-text">
+      <h2>Fidélisez les familles par la transparence.</h2>
+      <p>Réservez une démo de 20 minutes : on vous montre comment la plateforme et l'IA renforcent la confiance des parents et améliorent vos services scolaires.</p>
+    </div>
+    <button class="btn-primary" onclick="openModal()">
+      Demander une démo
+      <svg viewBox="0 0 14 14" fill="none"><path d="M3 7h8M11 7L7.5 3.5M11 7l-3.5 3.5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </section>
+
+  <footer>
+    <p>© 2026 Machi — L'École Connectée · Tous droits réservés</p>
+    <div><a href="https://execinnov.com" target="_blank" rel="noopener noreferrer">Propulsé par ExecINNOV</a></div>
+  </footer>
+
+</div>
+
+<!-- MODAL DÉMO -->
+<div class="modal-overlay" id="demoModal">
+  <div class="modal" style="width:100%;max-width:440px;margin:0 auto;box-sizing:border-box;">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <div id="formView">
+      <div class="modal-eyebrow">Demande de démo</div>
+      <h3>Découvrez la plateforme</h3>
+      <p class="modal-sub">Laissez-nous vos coordonnées, notre équipe vous recontacte pour planifier une présentation.</p>
+
+      <div class="field">
+        <label for="f-ecole">Nom de l'école</label>
+        <input id="f-ecole" type="text" placeholder="Ex. Groupe Scolaire Al Manar" />
+      </div>
+      <div class="field">
+        <label for="f-nom">Votre nom</label>
+        <input id="f-nom" type="text" placeholder="Prénom et nom" />
+      </div>
+      <div class="field">
+        <label for="f-ville">Ville</label>
+        <input id="f-ville" type="text" placeholder="Ex. Casablanca" />
+      </div>
+      <div class="field">
+        <label for="f-tel">Téléphone</label>
+        <input id="f-tel" type="tel" placeholder="+212 6 00 00 00 00" />
+      </div>
+      <div class="field">
+        <label for="f-email">Email</label>
+        <input id="f-email" type="email" placeholder="vous@ecole.ma" />
+      </div>
+
+      <button class="modal-submit" onclick="submitDemo()">
+        Envoyer ma demande
+        <svg width="15" height="15" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M11 7L7.5 3.5M11 7l-3.5 3.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <p class="modal-note" id="formNote">Réponse sous 48h. Aucune donnée transmise à des tiers.</p>
+    </div>
+
+    <div id="successView" style="display:none">
+      <div class="modal-success">
+        <div class="check"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <h3>Demande envoyée</h3>
+        <p class="modal-sub" style="margin-bottom:8px">Merci. Notre équipe vous recontacte très vite pour planifier votre démo.</p>
+        <button class="modal-submit" onclick="closeModal()">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── REMPLACER par votre endpoint (Google Apps Script, Formspree, etc.) ──
+  const DEMO_ENDPOINT = "https://script.google.com/macros/s/AKfycby8Rkr-zx34k9UGq0iKllGm3JYqzLPQrmgjfiaOG5-93jrFe3KW0VU3oe7fEcpVudUI/exec";
+
+  function openModal()  {
+    document.getElementById('demoModal').classList.add('open');
+    var m = document.querySelector('#demoModal .modal');
+    if (m) {
+      m.style.setProperty('width', '100%', 'important');
+      m.style.setProperty('max-width', '440px', 'important');
+      m.style.setProperty('margin', '0 auto', 'important');
+      m.style.setProperty('box-sizing', 'border-box', 'important');
+    }
+  }
+  function closeModal() {
+    document.getElementById('demoModal').classList.remove('open');
+    document.getElementById('formView').style.display = 'block';
+    document.getElementById('successView').style.display = 'none';
+  }
+  document.getElementById('demoModal').addEventListener('click', function(e){
+    if (e.target === this) closeModal();
+  });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeModal(); });
+
+  async function submitDemo() {
+    const ecole = document.getElementById('f-ecole').value.trim();
+    const nom   = document.getElementById('f-nom').value.trim();
+    const ville = document.getElementById('f-ville').value.trim();
+    const tel   = document.getElementById('f-tel').value.trim();
+    const email = document.getElementById('f-email').value.trim();
+    const note  = document.getElementById('formNote');
+
+    if (!ecole || !nom || !ville || !tel || !email) {
+      note.textContent = "⚠️ Merci de remplir tous les champs.";
+      note.style.color = "#c1121f"; return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      note.textContent = "⚠️ Adresse email invalide.";
+      note.style.color = "#c1121f"; return;
+    }
+
+    note.textContent = "Envoi en cours...";
+    note.style.color = "#5f6675";
+
+    const payload = { ecole, nom, ville, tel, email, source: "landing-ecoles" };
+
+    try {
+      if (DEMO_ENDPOINT) {
+        await fetch(DEMO_ENDPOINT, {
+          method: "POST", mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+      }
+      document.getElementById('formView').style.display = 'none';
+      document.getElementById('successView').style.display = 'block';
+    } catch {
+      note.textContent = "❌ Une erreur est survenue. Réessayez.";
+      note.style.color = "#c1121f";
+    }
+  }
+
+  // ── ANIMATION CHIFFRES CLÉS ──
+  (function() {
+    const items = document.querySelectorAll('.stat-item');
+    if (!items.length) return;
+
+    function easeOutQuart(t) { return 1 - Math.pow(1 - t, 4); }
+
+    function animateCount(el) {
+      const target = parseFloat(el.dataset.target);
+      const numEl  = el.querySelector('.stat-num');
+      if (!numEl) return;
+      const duration = 1600;
+      const start = performance.now();
+      function step(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = easeOutQuart(progress);
+        const current = Math.round(eased * target);
+        numEl.textContent = current;
+        if (progress < 1) requestAnimationFrame(step);
+        else numEl.textContent = target;
+      }
+      requestAnimationFrame(step);
+    }
+
+    const observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry, i) {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          setTimeout(function() {
+            el.classList.add('visible');
+            animateCount(el);
+          }, i * 120);
+          observer.unobserve(el);
+        }
+      });
+    }, { threshold: 0.25 });
+
+    items.forEach(function(item) { observer.observe(item); });
+  })();
+  (function() {
+    const canvas = document.getElementById('bgCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [];
+    const COLORS = ['rgba(29,78,216,', 'rgba(14,116,144,', 'rgba(180,83,9,'];
+    function resize(){ W = canvas.width = innerWidth; H = canvas.height = innerHeight; }
+    function rand(a,b){ return a + Math.random()*(b-a); }
+    function create(){
+      const c = COLORS[Math.floor(Math.random()*COLORS.length)];
+      return { x:rand(0,W), y:rand(0,H), r:rand(1,3), vx:rand(-0.13,0.13), vy:rand(-0.2,-0.05),
+               alpha:rand(0.06,0.28), da:rand(-0.002,0.002), color:c, life:rand(0,Math.PI*2), speed:rand(0.005,0.012) };
+    }
+    function init(){ resize(); particles = []; const n = Math.min(60, Math.floor(W*H/18000)); for(let i=0;i<n;i++) particles.push(create()); }
+    function draw(){
+      ctx.clearRect(0,0,W,H);
+      particles.forEach(p=>{
+        p.life+=p.speed; p.x+=p.vx+Math.sin(p.life)*0.1; p.y+=p.vy; p.alpha+=p.da;
+        if(p.alpha<0.04)p.da=Math.abs(p.da); if(p.alpha>0.32)p.da=-Math.abs(p.da);
+        if(p.y<-10){p.y=H+10;p.x=rand(0,W);}
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fillStyle=p.color+p.alpha+')'; ctx.fill();
+      });
+      for(let i=0;i<particles.length;i++) for(let j=i+1;j<particles.length;j++){
+        const dx=particles[i].x-particles[j].x, dy=particles[i].y-particles[j].y, d=Math.sqrt(dx*dx+dy*dy);
+        if(d<90){ ctx.beginPath(); ctx.moveTo(particles[i].x,particles[i].y); ctx.lineTo(particles[j].x,particles[j].y);
+          ctx.strokeStyle='rgba(29,78,216,'+(0.045*(1-d/90))+')'; ctx.lineWidth=0.5; ctx.stroke(); }
+      }
+      requestAnimationFrame(draw);
+    }
+    addEventListener('resize', resize); init(); draw();
+  })();
+</script>
+</body>
+</html>
