@@ -575,6 +575,19 @@
   .cta-band .btn-primary svg { stroke: var(--accent); }
   .cta-band .btn-primary:hover { box-shadow: 0 10px 24px rgba(0,0,0,0.22); }
 
+  .contact-section { max-width:1184px; margin:0 auto 40px; padding:36px 40px; background:var(--surface); border:1px solid var(--border); border-radius:20px; }
+  .contact-copy h2 { font-family:'Playfair Display',serif; color:var(--primary); font-size:28px; font-weight:800; line-height:1.15; }
+  .contact-copy p { color:var(--muted); font-size:14px; margin-top:10px; }
+  .contact-form { margin-top:22px; }
+  .contact-form .field input,.contact-form .field textarea { width:100%; }
+  .contact-form .field textarea { min-height:120px; padding:11px 14px; background:var(--surface2); border:1.5px solid var(--border-strong); border-radius:10px; color:var(--text); font:inherit; resize:vertical; }
+  .contact-form .field textarea:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(29,78,216,.1); background:#fff; }
+  .contact-form .modal-submit { width:100%; margin-top:0; justify-content:center; }
+  .contact-success { margin-top:12px; color:var(--primary); font-size:13px; font-weight:600; }
+  .contact-success[hidden] { display:none; }
+  @media (max-width:960px) { .contact-section { margin:0 20px 30px; padding:28px 24px; } }
+  @media (max-width:600px) { .contact-section { margin:0 16px 24px; padding:22px 18px; } .contact-copy h2 { font-size:26px; } .contact-form .field input,.contact-form .field textarea { font-size:16px; } .contact-form .modal-submit { min-height:48px; } }
+
   footer {
     padding: 22px 48px; border-top: 1px solid var(--border);
     display: flex; align-items: center; justify-content: space-between;
@@ -1081,6 +1094,17 @@
     </button>
   </section>
 
+  <section class="contact-section" id="contact">
+    <div class="contact-copy"><h2>Contactez-nous</h2><p>Une question ? Écrivez-nous, nous vous répondons sous 48h.</p></div>
+    <form class="contact-form" id="contactForm">
+      <div class="field"><label for="contactName">Nom</label><input id="contactName" type="text" required /></div>
+      <div class="field"><label for="contactEmail">Email</label><input id="contactEmail" type="email" required /></div>
+      <div class="field"><label for="contactMessage">Message</label><textarea id="contactMessage" rows="5" required></textarea></div>
+      <button class="modal-submit" type="submit">Envoyer</button>
+      <p class="contact-success" id="contactSuccess" role="status" aria-live="polite" hidden>Merci, message bien reçu (test).</p>
+    </form>
+  </section>
+
   <footer>
     <p>© 2026 Machi — L'École Connectée · Tous droits réservés</p>
     <div><a href="https://execinnov.com" target="_blank" rel="noopener noreferrer">Propulsé par ExecINNOV</a></div>
@@ -1269,6 +1293,14 @@
     }
     addEventListener('resize', resize); init(); draw();
   })();
+  // Local contact confirmation only; no data is transmitted.
+  (function(){
+    const form=document.getElementById('contactForm'), success=document.getElementById('contactSuccess');
+    if(!form||!success)return;
+    form.addEventListener('input',()=>{success.hidden=true;});
+    form.addEventListener('submit',event=>{event.preventDefault();if(!form.checkValidity()){form.reportValidity();return;}success.hidden=false;});
+  })();
+
 </script>
 </body>
 </html>
